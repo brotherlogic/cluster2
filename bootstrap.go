@@ -26,6 +26,8 @@ func main() {
 		if count == 3 {
 			return
 		}
+	} else {
+		fmt.Printf("kubectl error: %v", err)
 	}
 
 	fmt.Printf("Cluster setup error\n")
