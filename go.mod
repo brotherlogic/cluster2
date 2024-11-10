@@ -1,3 +1,3 @@
-module github.com/brotherlogic/cluster2
+module github.com/brotherlogic/cluster
 
 go 1.23.2
