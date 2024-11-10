@@ -1,2 +1,5 @@
 cd /home/simon/cluster
-git fetch -p && git merge origin/master
+
+git fetch -p && git -q merge origin/master
+
+go build
