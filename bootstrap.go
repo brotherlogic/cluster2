@@ -47,6 +47,30 @@ func createRebuildIssue(ctx context.Context, client *github.Client) {
 	}
 }
 
+func getLabels(ctx context.Context, client *github.Client, issue int) ([]string, error) {
+	r, _, err := client.Issues.ListLabelsByIssue(ctx, user, repo, issue, &github.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var labels []string
+	for _, label := range r {
+		labels = append(labels, label.GetName())
+	}
+	return labels, nil
+}
+
+func postComment(ctx context.Context, client *github.Client, issue int, comment string) error {
+	_, _, err := client.Issues.CreateComment(ctx, user, repo, issue, &github.IssueComment{
+		Body: proto.String(comment),
+	})
+	return err
+}
+
+func buildCluster(ctx context.Context, client *github.Client, issue int) error {
+	err := postComment(ctx, client, issue, "Building Cluster")
+	return err
+}
+
 func main() {
 	/*
 	** Bootstraps the cluster **
@@ -88,8 +112,22 @@ func main() {
 	// Check for the issue
 	issue, err := getIssue(ctx, client)
 	if err != nil {
-		createRebuildIssue(ctx, client)
-		return
+		if status.Code(err) == codes.NotFound {
+			createRebuildIssue(ctx, client)
+			return
+		}
+		log.Fatalf("Bad issue build: %v", err)
+	}
+
+	// See what the labels are
+	labels, err := getLabels(ctx, client, issue)
+	if err != nil {
+		log.Fatalf("Bad labels: %v", err)
+	}
+	for _, label := range labels {
+		if label == "Proceed" {
+			buildCluster(ctx, client, issue)
+		}
 	}
 
 	fmt.Printf("Cluster setup error; issue: %v\n", issue)
