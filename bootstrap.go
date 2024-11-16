@@ -68,6 +68,17 @@ func postComment(ctx context.Context, client *github.Client, issue int, comment 
 
 func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	err := postComment(ctx, client, issue, "Building Cluster")
+	if err != nil {
+		return err
+	}
+
+	// Build the cluster
+	output, err := exec.Command("ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
+	if err != nil {
+		log.Printf(string(output))
+		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
+	}
+
 	return err
 }
 
