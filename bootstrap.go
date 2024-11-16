@@ -125,7 +125,7 @@ func main() {
 		log.Fatalf("Bad labels: %v", err)
 	}
 	for _, label := range labels {
-		if label == "proceed" {
+		if strings.ToLower(label) == "proceed" {
 			buildCluster(ctx, client, issue)
 		}
 	}
