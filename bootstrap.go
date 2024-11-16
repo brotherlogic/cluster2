@@ -67,6 +67,8 @@ func main() {
 		if count == 3 {
 			return
 		}
+	} else {
+		fmt.Printf("kubectl error: %v", err)
 	}
 
 	// If we can't reach the cluster, start the bootstrap process
