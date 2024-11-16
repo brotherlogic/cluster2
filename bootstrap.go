@@ -130,5 +130,5 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Cluster setup error; issue: %v\n", issue)
+	fmt.Printf("Cluster setup error; issue: %v -> %v\n", issue, labels)
 }
