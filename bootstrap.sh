@@ -4,4 +4,4 @@ git fetch -p && git merge -q origin/master
 
 go build
 
-./cluster
+./cluster2
