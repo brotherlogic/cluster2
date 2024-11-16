@@ -76,6 +76,11 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	output, err := exec.Command("ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
 	if err != nil {
 		log.Printf(string(output))
+
+		if strings.Contains(string(output), "UNREACHABLE") {
+			return postComment(ctx, client, issue, fmt.Sprintf("Validate reachability"))
+		}
+
 		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
 	}
 
