@@ -71,9 +71,15 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	if err != nil {
 		return err
 	}
+	// Prep the cluster
+	output, err := exec.Command("ansible-galaxy", "install", "-r", "./collections/requirements.yml")
+	if err != nil {
+		log.Printf(string(output))
+		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
+	}
 
 	// Build the cluster
-	output, err := exec.Command("ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
+	output, err = exec.Command("ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
 	if err != nil {
 		log.Printf(string(output))
 
