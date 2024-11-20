@@ -95,7 +95,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	}
 
 	// Build the cluster
-	output, err = exec.Command("ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
+	output, err = exec.Command("/home/simon/p3/bin/ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
 	if err != nil {
 		log.Printf(string(output))
 
