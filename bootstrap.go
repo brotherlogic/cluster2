@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
 
 	"github.com/google/go-github/v50/github"
@@ -60,6 +62,18 @@ func getLabels(ctx context.Context, client *github.Client, issue int) ([]string,
 }
 
 func postComment(ctx context.Context, client *github.Client, issue int, comment string) error {
+	// Get the prior comment
+	comments, _, err := client.Issues.ListComments(ctx, user, repo, issue, &github.IssueListCommentsOptions{})
+	sort.SliceStable(comments, func(i, j int) bool) {
+		return comments[i].CreatedAt < comments[j].CreatedAt
+	}	
+
+	// Don't double post issues
+	log.Printf("Last comment: %v", comments[0])
+	if comments[0].Body == comment {
+		return nil
+	}
+
 	_, _, err := client.Issues.CreateComment(ctx, user, repo, issue, &github.IssueComment{
 		Body: proto.String(comment),
 	})
@@ -72,7 +86,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 	// Prep the cluster
-	output, err := exec.Command("ansible-galaxy", "install", "-r", "./collections/requirements.yml")
+	output, err := exec.Command("ansible-galaxy", "install", "-r", "./collections/requirements.yml").CombinedOutput()
 	if err != nil {
 		log.Printf(string(output))
 		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
@@ -100,14 +114,30 @@ func main() {
 	** Bootstraps the cluster **
 	 */
 
+	// Read the nodes we expect to see here
+	var nodes []string
+	bytes, err := ioutil.ReadFile("/home/simon/cluster/inventory/my-cluster/hosts.ini")
+	if err != nil {
+		log.Fatalf("Bad read: %v", err)
+	}
+
+	for _, line := range strings.Split(string(bytes), "\n") {
+		index := strings.Index(line, "#")
+		if index > 0 {
+			nodes = append(nodes, line[index:])
+		}
+	}
+
 	// Can we reach the cluster
 	res, err := exec.Command("kubectl", "get", "nodes").CombinedOutput()
 	if err == nil {
 		count := 0
 		for _, line := range strings.Split(string(res), "\n")[1:] {
 			elems := strings.Fields(line)
-			if elems[0] == "klust1" || elems[0] == "klust2" || elems[0] == "klust3" {
-				count++
+			for _, node := range nodes {
+				if elems[0] == node {
+					count++
+				}
 			}
 		}
 
