@@ -64,17 +64,17 @@ func getLabels(ctx context.Context, client *github.Client, issue int) ([]string,
 func postComment(ctx context.Context, client *github.Client, issue int, comment string) error {
 	// Get the prior comment
 	comments, _, err := client.Issues.ListComments(ctx, user, repo, issue, &github.IssueListCommentsOptions{})
-	sort.SliceStable(comments, func(i, j int) bool) {
-		return comments[i].CreatedAt < comments[j].CreatedAt
-	}	
+	sort.SliceStable(comments, func(i, j int) bool {
+		return comments[i].CreatedAt.Unix() < comments[j].CreatedAt.Unix()
+	})
 
 	// Don't double post issues
 	log.Printf("Last comment: %v", comments[0])
-	if comments[0].Body == comment {
+	if comments[0].GetBody() == comment {
 		return nil
 	}
 
-	_, _, err := client.Issues.CreateComment(ctx, user, repo, issue, &github.IssueComment{
+	_, _, err = client.Issues.CreateComment(ctx, user, repo, issue, &github.IssueComment{
 		Body: proto.String(comment),
 	})
 	return err
