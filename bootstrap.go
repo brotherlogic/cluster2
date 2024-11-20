@@ -69,9 +69,11 @@ func postComment(ctx context.Context, client *github.Client, issue int, comment 
 	})
 
 	// Don't double post issues
-	log.Printf("Last comment: %v", comments[0])
-	if comments[0].GetBody() == comment {
-		return nil
+	if len(comments) > 0 {
+		log.Printf("Last comment: %v", comments[0])
+		if comments[0].GetBody() == comment {
+			return nil
+		}
 	}
 
 	_, _, err = client.Issues.CreateComment(ctx, user, repo, issue, &github.IssueComment{
