@@ -131,7 +131,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 
-	output, err = exec.Command("mkdir", "/home/simon/.kube").CombinedOutput()
+	output, err = exec.Command("mkdir", "-p", "/home/simon/.kube").CombinedOutput()
 	if err != nil {
 		log.Printf("Erorr runnign mkdir: %v", string(output))
 		return err
