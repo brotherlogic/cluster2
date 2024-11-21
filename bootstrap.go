@@ -21,6 +21,7 @@ const (
 	repo         = "cluster2"
 	user         = "brotherlogic"
 	rebuildTitle = "Request Cluster Rebuild"
+	masterIP     = "192.168.86.82"
 )
 
 func getIssue(ctx context.Context, client *github.Client) (int, error) {
@@ -124,7 +125,25 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 
-	return nil //closeIssue(ctx, client, issue)
+	output, err = exec.Command("ssh", masterIP, "-c", "sudo", "chmod", "777", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
+	if err != nil {
+		log.Printf("Erorr runnign chmod: %v", string(output))
+		return err
+	}
+
+	output, err = exec.Command("scp", fmt.Sprintf("%v:/etc/rancher/k3s/k3s.yaml", masterIP), "~/.kube/config").CombinedOutput()
+	if err != nil {
+		log.Printf("Erorr running scp: %v", string(output))
+		return err
+	}
+
+	output, err = exec.Command("ssh", masterIP, "-c", "sudo", "chmod", "600", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
+	if err != nil {
+		log.Printf("Erorr running chmod back: %v", string(output))
+		return err
+	}
+
+	return closeIssue(ctx, client, issue)
 }
 
 func main() {
