@@ -72,6 +72,7 @@ func postComment(ctx context.Context, client *github.Client, issue int, comment 
 	// Don't double post issues
 	if len(comments) > 0 {
 		log.Printf("Last comment: %v", comments[0])
+		log.Printf("Before that: %v", comments[len(comments)-1])
 		if comments[0].GetBody() == comment {
 			return nil
 		}
