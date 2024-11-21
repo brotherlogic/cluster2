@@ -155,7 +155,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 
-	output, err = exec.Command("sed", "-i", "'s|127.0.0.1|192.168.86.222|g'", "/home/simon/.kube/config").CombinedOutput()
+	output, err = exec.Command("sed", "-i", "s|127.0.0.1|192.168.86.222|g", "/home/simon/.kube/config").CombinedOutput()
 	if err != nil {
 		log.Printf("Erorr running scp: %v", string(output))
 		return err
