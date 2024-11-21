@@ -204,6 +204,8 @@ func main() {
 		}
 	}
 
+	log.Printf("Read %v but %v", string(res), nodes)
+
 	// If we can't reach the cluster, start the bootstrap process
 	//
 	// 1. Load the github client
