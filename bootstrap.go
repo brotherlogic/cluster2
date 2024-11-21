@@ -106,7 +106,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
 	}
 
-	err = postComment(ctx, client, issue, string(output))
+	err = postComment(ctx, client, issue, "Cluster build complete")
 
 	return err
 }
