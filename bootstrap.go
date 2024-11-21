@@ -64,7 +64,14 @@ func getLabels(ctx context.Context, client *github.Client, issue int) ([]string,
 
 func postComment(ctx context.Context, client *github.Client, issue int, comment string) error {
 	// Get the prior comment
-	comments, _, err := client.Issues.ListComments(ctx, user, repo, issue, &github.IssueListCommentsOptions{})
+	comments, _, err := client.Issues.ListComments(ctx, user, repo, issue, &github.IssueListCommentsOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	})
+	if err != nil {
+		return err
+	}
 	sort.SliceStable(comments, func(i, j int) bool {
 		return comments[i].CreatedAt.Unix() > comments[j].CreatedAt.Unix()
 	})
