@@ -143,7 +143,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 
-	output, err = exec.Command("scp", fmt.Sprintf("%v:/etc/rancher/k3s/k3s.yaml", masterIP), "~/.kube/config").CombinedOutput()
+	output, err = exec.Command("scp", fmt.Sprintf("%v:/etc/rancher/k3s/k3s.yaml", masterIP), "/home/simon/.kube/config").CombinedOutput()
 	if err != nil {
 		log.Printf("Erorr running scp: %v", string(output))
 		return err
