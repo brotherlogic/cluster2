@@ -149,7 +149,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 
-	output, err = exec.Command("ssh", masterIP, "-c", "sudo", "chmod", "600", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
+	output, err = exec.Command("ssh", masterIP, "sudo", "chmod", "600", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
 	if err != nil {
 		log.Printf("Erorr running chmod back: %v", string(output))
 		return err
