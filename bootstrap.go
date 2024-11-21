@@ -65,7 +65,7 @@ func postComment(ctx context.Context, client *github.Client, issue int, comment 
 	// Get the prior comment
 	comments, _, err := client.Issues.ListComments(ctx, user, repo, issue, &github.IssueListCommentsOptions{})
 	sort.SliceStable(comments, func(i, j int) bool {
-		return comments[i].CreatedAt.Unix() > comments[j].CreatedAt.Unix()
+		return comments[i].CreatedAt.Unix() < comments[j].CreatedAt.Unix()
 	})
 
 	// Don't double post issues
