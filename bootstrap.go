@@ -133,6 +133,12 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		return err
 	}
 
+	output, err = exec.Command("mkdir", "/home/simon/.kube").CombinedOutput()
+	if err != nil {
+		log.Printf("Erorr runnign mkdir: %v", string(output))
+		return err
+	}
+
 	output, err = exec.Command("ssh", masterIP, "sudo", "chmod", "777", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
 	if err != nil {
 		log.Printf("Erorr runnign chmod: %v", string(output))
