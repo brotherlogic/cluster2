@@ -152,9 +152,11 @@ func main() {
 		count := 0
 		for _, line := range strings.Split(string(res), "\n")[1:] {
 			elems := strings.Fields(line)
-			for _, node := range nodes {
-				if elems[0] == node {
-					count++
+			if len(elems) > 0 {
+				for _, node := range nodes {
+					if elems[0] == node {
+						count++
+					}
 				}
 			}
 		}
