@@ -108,6 +108,12 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 
 	err = postComment(ctx, client, issue, "Cluster build complete")
 
+	// Copy the control file over
+	output, err = exec.Command("scp", "@192.168.86.52:/etc/rancher/k3s/k3s.yaml", "/home/simon/.kube/config").CombinedOutput()
+	if err != nil {
+		return postComment(ctx, client, issue, fmt.Sprintf("Error on config copy: %v", string(output)))
+	}
+
 	return err
 }
 
