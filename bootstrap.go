@@ -179,7 +179,7 @@ func main() {
 	for _, line := range strings.Split(string(bytes), "\n") {
 		index := strings.Index(line, "#")
 		if index > 0 {
-			nodes = append(nodes, line[index:])
+			nodes = append(nodes, line[index+1:])
 		}
 	}
 
