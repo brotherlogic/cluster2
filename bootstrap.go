@@ -82,6 +82,13 @@ func postComment(ctx context.Context, client *github.Client, issue int, comment 
 	return err
 }
 
+func closeIssue(ctx context.Context, client *github.Client, issue int) error {
+	_, _, err := client.Issues.Edit(ctx, user, repo, issue, &github.IssueRequest{
+		State: proto.String("closed"),
+	})
+	return err
+}
+
 func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	err := postComment(ctx, client, issue, "Building Cluster - running ansible")
 	if err != nil {
@@ -107,14 +114,17 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	}
 
 	err = postComment(ctx, client, issue, "Cluster build complete")
-
-	// Copy the control file over
-	output, err = exec.Command("scp", "@192.168.86.52:/etc/rancher/k3s/k3s.yaml", "/home/simon/.kube/config").CombinedOutput()
 	if err != nil {
-		return postComment(ctx, client, issue, fmt.Sprintf("Error on config copy: %v", string(output)))
+		return err
 	}
 
-	return err
+	// Cluster is built, copy over the files
+	err = postComment(ctx, client, issue, "Copying config")
+	if err != nil {
+		return err
+	}
+
+	return nil //closeIssue(ctx, client, issue)
 }
 
 func main() {
