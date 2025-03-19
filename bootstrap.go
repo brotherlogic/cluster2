@@ -88,8 +88,8 @@ func postComment(ctx context.Context, value int, client *github.Client, issue in
 		if err != nil {
 			log.Fatalf("Bad parse: %v", err)
 		}
-		if val <= int64(value) {
-			log.Printf("Skipping issue because %v is less than %v", val, int64(value))
+		if int64(value) <= val {
+			log.Printf("Skipping issue because %v is less than %v", int64(value), val)
 			return nil
 		}
 	}
