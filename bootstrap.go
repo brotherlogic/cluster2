@@ -114,7 +114,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		log.Printf(string(output))
 
 		if strings.Contains(string(output), "UNREACHABLE") {
-			return postComment(ctx, client, issue, fmt.Sprintf("Validate reachability"))
+			return postComment(ctx, client, issue, fmt.Sprintf("Validate reachability: %v", string(output)))
 		}
 
 		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
