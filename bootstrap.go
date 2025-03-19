@@ -21,7 +21,7 @@ const (
 	repo         = "cluster2"
 	user         = "brotherlogic"
 	rebuildTitle = "Request Cluster Rebuild"
-	masterIP     = "192.168.86.82"
+	masterIP     = "192.168.86.77"
 )
 
 func getIssue(ctx context.Context, client *github.Client) (int, error) {
