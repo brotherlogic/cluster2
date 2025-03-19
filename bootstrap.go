@@ -130,6 +130,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 
 		return postComment(ctx, 4, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
 	}
+	log.Printf("Run ansible: %v", err)
 
 	err = postComment(ctx, 5, client, issue, "Cluster build complete")
 	if err != nil {
