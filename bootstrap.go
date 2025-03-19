@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/google/go-github/v50/github"
@@ -62,7 +63,7 @@ func getLabels(ctx context.Context, client *github.Client, issue int) ([]string,
 	return labels, nil
 }
 
-func postComment(ctx context.Context, client *github.Client, issue int, comment string) error {
+func postComment(ctx context.Context, value int, client *github.Client, issue int, comment string) error {
 	// Get the prior comment
 	comments, _, err := client.Issues.ListComments(ctx, user, repo, issue, &github.IssueListCommentsOptions{
 		ListOptions: github.ListOptions{
@@ -81,10 +82,19 @@ func postComment(ctx context.Context, client *github.Client, issue int, comment 
 		if comments[0].GetBody() == comment {
 			return nil
 		}
+
+		elems := strings.Split(comments[0].GetBody(), ":")
+		val, err := strconv.ParseInt(elems[0], 10, 64)
+		if err != nil {
+			log.Fatalf("Bad parse: %v", err)
+		}
+		if val <= int64(value) {
+			return nil
+		}
 	}
 
 	_, _, err = client.Issues.CreateComment(ctx, user, repo, issue, &github.IssueComment{
-		Body: proto.String(comment),
+		Body: proto.String(fmt.Sprintf("%v:%v", value, comment)),
 	})
 	return err
 }
@@ -97,7 +107,7 @@ func closeIssue(ctx context.Context, client *github.Client, issue int) error {
 }
 
 func buildCluster(ctx context.Context, client *github.Client, issue int) error {
-	err := postComment(ctx, client, issue, "Building Cluster - running ansible")
+	err := postComment(ctx, 1, client, issue, "Building Cluster - running ansible")
 	if err != nil {
 		return err
 	}
@@ -105,7 +115,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	output, err := exec.Command("ansible-galaxy", "install", "-r", "./collections/requirements.yml").CombinedOutput()
 	if err != nil {
 		log.Printf(string(output))
-		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
+		return postComment(ctx, 2, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
 	}
 
 	// Build the cluster
@@ -114,19 +124,19 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 		log.Printf(string(output))
 
 		if strings.Contains(string(output), "UNREACHABLE") {
-			return postComment(ctx, client, issue, fmt.Sprintf("Validate reachability: %v", string(output)))
+			return postComment(ctx, 3, client, issue, fmt.Sprintf("Validate reachability: %v", string(output)))
 		}
 
-		return postComment(ctx, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
+		return postComment(ctx, 4, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
 	}
 
-	err = postComment(ctx, client, issue, "Cluster build complete")
+	err = postComment(ctx, 5, client, issue, "Cluster build complete")
 	if err != nil {
 		return err
 	}
 
 	// Cluster is built, copy over the files
-	err = postComment(ctx, client, issue, "Copying config")
+	err = postComment(ctx, 6, client, issue, "Copying config")
 	if err != nil {
 		return err
 	}
