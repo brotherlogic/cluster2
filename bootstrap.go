@@ -128,7 +128,7 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 			return postComment(ctx, 3, client, issue, fmt.Sprintf("Validate reachability: %v", string(output)))
 		}
 
-		return postComment(ctx, 4, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
+		return postComment(ctx, 4, client, issue, fmt.Sprintf("Error on cluster build: %v -> %v", err, string(output)))
 	}
 	log.Printf("Run ansible: %v", err)
 
