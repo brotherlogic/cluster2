@@ -203,6 +203,7 @@ func main() {
 			elems := strings.Fields(line)
 			if len(elems) > 0 {
 				for _, node := range nodes {
+					log.Printf("Checking '%v' against '%v'", elems[0], node)
 					if elems[0] == node {
 						count++
 					}
