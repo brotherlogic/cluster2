@@ -191,14 +191,14 @@ func main() {
 	for _, line := range strings.Split(string(bytes), "\n") {
 		index := strings.Index(line, "#")
 		if index > 0 {
-			nodes = append(nodes, line[index+1:])
+			nodes = append(nodes, strings.TrimSpace(line[index+1:]))
 		}
 	}
 
 	// Can we reach the cluster
 	res, err := exec.Command("kubectl", "get", "nodes").CombinedOutput()
+	count := 0
 	if err == nil {
-		count := 0
 		for _, line := range strings.Split(string(res), "\n")[1:] {
 			elems := strings.Fields(line)
 			if len(elems) > 0 {
