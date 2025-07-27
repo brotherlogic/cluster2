@@ -47,7 +47,7 @@ kube_vip_bgp_peeraddress: "192.168.68.1" # Defines the address for the BGP peer
 kube_vip_bgp_peeras: "64512" # Defines the AS for the BGP peer
 
 # apiserver_endpoint is virtual ip-address which will be configured on each master
-apiserver_endpoint: 192.168.68.35
+apiserver_endpoint: 192.168.68.36
 
 # k3s_token is required  masters can talk together securely
 # this token should be alpha numeric only
