@@ -243,6 +243,4 @@ func main() {
 			buildCluster(ctx, client, issue)
 		}
 	}
-
-	fmt.Printf("Cluster setup error; issue: %v -> %v\n", issue, labels)
 }
