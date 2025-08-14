@@ -42,9 +42,10 @@ func getIssue(ctx context.Context, client *github.Client) (int, error) {
 	return -1, status.Error(codes.NotFound, "Rebuild issue not found!")
 }
 
-func createRebuildIssue(ctx context.Context, client *github.Client) {
+func createRebuildIssue(ctx context.Context, client *github.Client, body string) {
 	_, _, err := client.Issues.Create(ctx, user, repo, &github.IssueRequest{
 		Title: proto.String(rebuildTitle),
+		Body:  proto.String(body),
 	})
 	if err != nil {
 		log.Fatalf("Unable to create issue: %v", err)
@@ -239,7 +240,7 @@ func main() {
 	issue, err := getIssue(ctx, client)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			createRebuildIssue(ctx, client)
+			createRebuildIssue(ctx, client, string(res))
 			return
 		}
 		log.Fatalf("Bad issue build: %v", err)
