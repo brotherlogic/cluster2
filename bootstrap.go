@@ -90,7 +90,6 @@ func postComment(ctx context.Context, value int, client *github.Client, issue in
 			log.Fatalf("Bad parse: %v", err)
 		}
 		if int64(value) <= val {
-			log.Printf("Skipping issue because %v is less than %v", int64(value), val)
 			return nil
 		}
 	}
@@ -116,14 +115,12 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 	// Prep the cluster
 	output, err := exec.Command("ansible-galaxy", "install", "-r", "./collections/requirements.yml").CombinedOutput()
 	if err != nil {
-		log.Printf(string(output))
 		return postComment(ctx, 2, client, issue, fmt.Sprintf("Error on cluster build: %v", err))
 	}
 
 	// Build the cluster
 	output, err = exec.Command("/home/simon/p3/bin/ansible-playbook", "site.yml", "-i", "inventory/my-cluster/hosts.ini").CombinedOutput()
 	if err != nil {
-		log.Printf(string(output))
 
 		if strings.Contains(string(output), "UNREACHABLE") {
 			return postComment(ctx, 3, client, issue, fmt.Sprintf("Validate reachability: %v", string(output)))
@@ -131,7 +128,6 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 
 		return postComment(ctx, 4, client, issue, fmt.Sprintf("Error on cluster build: %v -> %v", err, string(output)))
 	}
-	log.Printf("Run ansible: %v", err)
 
 	err = postComment(ctx, 5, client, issue, "Cluster build complete")
 	if err != nil {
@@ -146,31 +142,26 @@ func buildCluster(ctx context.Context, client *github.Client, issue int) error {
 
 	output, err = exec.Command("mkdir", "-p", "/home/simon/.kube").CombinedOutput()
 	if err != nil {
-		log.Printf("Erorr runnign mkdir: %v", string(output))
 		return err
 	}
 
 	output, err = exec.Command("ssh", masterIP, "sudo", "chmod", "777", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
 	if err != nil {
-		log.Printf("Erorr runnign chmod: %v", string(output))
 		return err
 	}
 
 	output, err = exec.Command("scp", fmt.Sprintf("%v:/etc/rancher/k3s/k3s.yaml", masterIP), "/home/simon/.kube/config").CombinedOutput()
 	if err != nil {
-		log.Printf("Erorr running scp: %v", string(output))
 		return err
 	}
 
 	output, err = exec.Command("ssh", masterIP, "sudo", "chmod", "600", "/etc/rancher/k3s/k3s.yaml").CombinedOutput()
 	if err != nil {
-		log.Printf("Erorr running chmod back: %v", string(output))
 		return err
 	}
 
 	output, err = exec.Command("sed", "-i", "s|127.0.0.1|192.168.68.222|g", "/home/simon/.kube/config").CombinedOutput()
 	if err != nil {
-		log.Printf("Erorr running scp: %v", string(output))
 		return err
 	}
 
@@ -204,7 +195,6 @@ func main() {
 			elems := strings.Fields(line)
 			if len(elems) > 0 {
 				for _, node := range nodes {
-					log.Printf("Checking '%v' against '%v'", elems[0], node)
 					if elems[0] == node {
 						count++
 					}
@@ -217,8 +207,6 @@ func main() {
 			return
 		}
 	}
-
-	log.Printf("Read %v but %v", string(res), nodes)
 
 	// If we can't reach the cluster, start the bootstrap process
 	//
@@ -256,6 +244,4 @@ func main() {
 			buildCluster(ctx, client, issue)
 		}
 	}
-
-	fmt.Printf("Cluster setup error; issue: %v -> %v\n", issue, labels)
 }
