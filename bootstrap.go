@@ -203,7 +203,7 @@ func main() {
 		}
 
 		// We've seen the three principal nodes
-		if count == 3 {
+		if count >= 3 {
 			return
 		}
 	}
